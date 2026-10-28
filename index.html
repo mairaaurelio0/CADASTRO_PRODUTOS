@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Estoque - POO</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+
+    <div class="container">
+        <img src="logo.semfundo.png" alt="logo" width="170px">
+        <h1>Cadastro de Produtos - Lojas Stavni</h1>
+        <p>Seja bem-vindo colaborador, selecione o produto e realize o cadastro em nosso estoque!</p>
+
+        
+        <form id="produto-form">
+            <div class="form-group">
+                <label for="nome">Nome do produto:</label>
+                <input type="text" id="nome" placeholder="Ex. Notebook" required />
+            </div>
+
+            <div class="form-group">
+                <label for="preco">Preço (R$):</label>
+                <input type="number" id="preco" step="0.01" placeholder="Ex. 3500.00" required />
+            </div>
+
+            <div class="form-group">
+                <label for="quantidade">Quantidade:</label>
+                <input type="number" id="quantidade" placeholder="Ex. 5" required />
+            </div>
+
+            <button type="submit" class="btn-primary">Adicionar Produto</button>
+        </form>
+
+        
+        <div class="resumo-container">
+            <h3 id="total-estoque">Total em Estoque: R$ 0,00</h3>
+            <button id="limpar-tabela" class="btn-danger">Limpar Tudo</button>
+        </div>
+
+        
+        <table id="tabela-produtos">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Preço</th>
+                    <th>Qtd</th>
+                    <th>Subtotal</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
