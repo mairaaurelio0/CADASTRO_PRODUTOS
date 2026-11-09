@@ -1,3 +1,4 @@
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -30,8 +31,25 @@ p {
     text-align: center;
 }
 
-img {
-    margin: auto -20px;
+/* FOTO REDONDA COM BORDA ROSA */
+img:not(.logo) {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 4px solid #e91e8c;
+    object-fit: cover;
+    display: block;
+    margin: 20px auto;
+}
+
+/* LOGO MANTIDA NORMAL */
+img.logo {
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    border: none;
+    object-fit: contain;
+    margin: 0;
 }
 
 form {
@@ -92,7 +110,6 @@ button {
     background-color: #880e4f;
 }
 
-/* Resumo / Painel */
 .resumo-container {
     display: flex;
     justify-content: space-between;
@@ -107,7 +124,20 @@ button {
     color: #880e4f;
 }
 
-/* Tabela */
+.busca-group {
+    margin: 20px 0 10px;
+}
+
+#campo-busca {
+    width: 100%;
+    background-color: #fff;
+    border: 2px solid #f48fb1;
+}
+
+#campo-busca:focus {
+    border-color: #c2185b;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -130,7 +160,14 @@ tbody tr:nth-child(even) {
     background-color: #ffeaf3;
 }
 
-/* Botão de edição individual dentro da tabela */
+.sem-resultados {
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+    color: #880e4f;
+    background-color: #ffeaf3;
+}
+
 .btn-editar {
     background-color: #f06292;
     color: white;
@@ -147,7 +184,6 @@ tbody tr:nth-child(even) {
     background-color: #d81b60;
 }
 
-/* Botão de remoção individual dentro da tabela */
 .btn-remover {
     background-color: #ad1457;
     color: white;

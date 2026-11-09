@@ -1,11 +1,10 @@
 const listaDeProdutos = [];
 
-
 let indiceEdicao = null;
+let termoBusca = ""; 
 
-// =========================================================================
-// DESAFIO 1: Classe Produto com Encapsulamento Privado (#) e Validações
-// =========================================================================
+const CHAVE_STORAGE = "estoque_stavni";
+
 class Produto {
     #preco;
     #quantidade;
@@ -42,47 +41,86 @@ class Produto {
 const form = document.getElementById("produto-form");
 const tabelaCorpo = document.querySelector("#tabela-produtos tbody");
 const botaoSubmit = form.querySelector('button[type="submit"]');
+const campoBusca = document.getElementById("campo-busca");
 
 const TEXTO_BOTAO_INCLUIR = "Adicionar Produto";
 const TEXTO_BOTAO_EDITAR = "Salvar Alterações";
 
+const formatarMoeda = (valor) =>
+    valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-function atualizarTotalEstoque() {
-    const valorTotal = listaDeProdutos.reduce((acumulador, produto) => {
+function salvarNoStorage() {
+    const dados = listaDeProdutos.map((p) => ({
+        nome: p.nome,
+        preco: p.preco,
+        quantidade: p.quantidade
+    }));
+    localStorage.setItem(CHAVE_STORAGE, JSON.stringify(dados));
+}
+
+function carregarDoStorage() {
+    try {
+        const dados = JSON.parse(localStorage.getItem(CHAVE_STORAGE)) || [];
+        dados.forEach((d) => {
+            listaDeProdutos.push(new Produto(d.nome, d.preco, d.quantidade));
+        });
+    } catch (error) {
+        console.error("Não foi possível carregar os dados salvos:", error);
+        localStorage.removeItem(CHAVE_STORAGE);
+    }
+}
+
+
+function obterProdutosFiltrados() {
+    return listaDeProdutos
+        .map((produto, indiceOriginal) => ({ produto, indiceOriginal }))
+        .filter(({ produto }) => produto.nome.toLowerCase().includes(termoBusca));
+}
+
+function atualizarTotalEstoque(itensVisiveis) {
+    const valorTotal = itensVisiveis.reduce((acumulador, { produto }) => {
         return acumulador + produto.subtotal;
     }, 0);
 
-    const totalFormatado = valorTotal.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-    });
-
-    document.getElementById("total-estoque").innerText = `Total em Estoque: ${totalFormatado}`;
+    document.getElementById("total-estoque").innerText =
+        `Total em Estoque: ${formatarMoeda(valorTotal)}`;
 }
 
 function renderizarTabela() {
     tabelaCorpo.innerHTML = "";
 
-    listaDeProdutos.forEach((produto, index) => {
+    const itensVisiveis = obterProdutosFiltrados();
+
+
+    if (itensVisiveis.length === 0) {
+        const mensagem = listaDeProdutos.length === 0
+            ? "Nenhum produto cadastrado ainda."
+            : "Produto não localizado.";
+
+        tabelaCorpo.innerHTML = `<tr><td colspan="5" class="sem-resultados">${mensagem}</td></tr>`;
+        atualizarTotalEstoque(itensVisiveis);
+        return;
+    }
+
+    itensVisiveis.forEach(({ produto, indiceOriginal }) => {
         const linha = document.createElement("tr");
 
         linha.innerHTML = `
             <td>${produto.nome}</td>
-            <td>${produto.preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
+            <td>${formatarMoeda(produto.preco)}</td>
             <td>${produto.quantidade}</td>
-            <td>${produto.subtotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
+            <td>${formatarMoeda(produto.subtotal)}</td>
             <td>
-                <button class="btn-editar" onclick="prepararEdicao(${index})">Editar</button>
-                <button class="btn-remover" onclick="removerProduto(${index})">Remover</button>
+                <button class="btn-editar" onclick="prepararEdicao(${indiceOriginal})">Editar</button>
+                <button class="btn-remover" onclick="removerProduto(${indiceOriginal})">Remover</button>
             </td>
         `;
 
         tabelaCorpo.appendChild(linha);
     });
 
-    atualizarTotalEstoque();
+    atualizarTotalEstoque(itensVisiveis);
 }
-
 
 function resetarModoInclusao() {
     indiceEdicao = null;
@@ -103,26 +141,33 @@ function prepararEdicao(index) {
     document.getElementById("nome").focus();
 }
 
-
 function removerProduto(index) {
     listaDeProdutos.splice(index, 1);
 
-    
     if (indiceEdicao === index) {
-        resetarModoInclusao();         
+        resetarModoInclusao();
     } else if (indiceEdicao !== null && index < indiceEdicao) {
-        indiceEdicao--;                
+        indiceEdicao--;
     }
 
+    salvarNoStorage();
     renderizarTabela();
 }
 
 document.getElementById("limpar-tabela").addEventListener("click", () => {
     listaDeProdutos.length = 0;
+    campoBusca.value = "";
+    termoBusca = "";
     resetarModoInclusao();
+    salvarNoStorage();
     renderizarTabela();
 });
 
+
+campoBusca.addEventListener("input", () => {
+    termoBusca = campoBusca.value.trim().toLowerCase();
+    renderizarTabela();
+});
 
 form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -148,17 +193,20 @@ form.addEventListener("submit", (event) => {
         const novoProduto = new Produto(nome, preco, quantidade);
 
         if (indiceEdicao === null) {
-            
             listaDeProdutos.push(novoProduto);
         } else {
-            
             listaDeProdutos[indiceEdicao] = novoProduto;
         }
 
+        salvarNoStorage();
         renderizarTabela();
-        resetarModoInclusao(); 
+        resetarModoInclusao();
 
     } catch (error) {
         alert(error.message);
     }
 });
+
+
+carregarDoStorage();
+renderizarTabela();

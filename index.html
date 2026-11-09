@@ -7,14 +7,13 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
 
     <div class="container">
         <img src="logo.semfundo.png" alt="logo" width="170px">
+        <img src="fotobm.jpeg" alt="bia e maira" >
         <h1>Cadastro de Produtos - Lojas Stavni</h1>
         <p>Seja bem-vindo colaborador, selecione o produto e realize o cadastro em nosso estoque!</p>
 
-        
         <form id="produto-form">
             <div class="form-group">
                 <label for="nome">Nome do produto:</label>
@@ -34,13 +33,17 @@
             <button type="submit" class="btn-primary">Adicionar Produto</button>
         </form>
 
-        
         <div class="resumo-container">
             <h3 id="total-estoque">Total em Estoque: R$ 0,00</h3>
             <button id="limpar-tabela" class="btn-danger">Limpar Tudo</button>
         </div>
 
-        
+    
+        <div class="form-group busca-group">
+            <label for="campo-busca">Pesquisar produto:</label>
+            <input type="search" id="campo-busca" placeholder="Digite parte do nome..." autocomplete="off" />
+        </div>
+
         <table id="tabela-produtos">
             <thead>
                 <tr>
@@ -52,7 +55,6 @@
                 </tr>
             </thead>
             <tbody>
-                
             </tbody>
         </table>
     </div>
