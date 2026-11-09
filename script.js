@@ -1,7 +1,7 @@
 const listaDeProdutos = [];
 
 let indiceEdicao = null;
-let termoBusca = ""; 
+let termoBusca = "";
 
 const CHAVE_STORAGE = "estoque_stavni";
 
@@ -43,6 +43,11 @@ const tabelaCorpo = document.querySelector("#tabela-produtos tbody");
 const botaoSubmit = form.querySelector('button[type="submit"]');
 const campoBusca = document.getElementById("campo-busca");
 
+const campoNome = document.getElementById("nome");
+const campoPreco = document.getElementById("preco");
+const campoQuantidade = document.getElementById("quantidade");
+const listaSugestoes = document.getElementById("sugestoes-produtos");
+
 const TEXTO_BOTAO_INCLUIR = "Adicionar Produto";
 const TEXTO_BOTAO_EDITAR = "Salvar Alterações";
 
@@ -70,11 +75,24 @@ function carregarDoStorage() {
     }
 }
 
-
 function obterProdutosFiltrados() {
     return listaDeProdutos
         .map((produto, indiceOriginal) => ({ produto, indiceOriginal }))
         .filter(({ produto }) => produto.nome.toLowerCase().includes(termoBusca));
+}
+
+function atualizarSugestoes() {
+    listaSugestoes.innerHTML = "";
+
+    const nomesUnicos = [...new Map(
+        listaDeProdutos.map((p) => [p.nome.toLowerCase(), p.nome])
+    ).values()];
+
+    nomesUnicos.forEach((nome) => {
+        const opcao = document.createElement("option");
+        opcao.value = nome;
+        listaSugestoes.appendChild(opcao);
+    });
 }
 
 function atualizarTotalEstoque(itensVisiveis) {
@@ -88,9 +106,9 @@ function atualizarTotalEstoque(itensVisiveis) {
 
 function renderizarTabela() {
     tabelaCorpo.innerHTML = "";
+    atualizarSugestoes();
 
     const itensVisiveis = obterProdutosFiltrados();
-
 
     if (itensVisiveis.length === 0) {
         const mensagem = listaDeProdutos.length === 0
@@ -106,7 +124,7 @@ function renderizarTabela() {
         const linha = document.createElement("tr");
 
         linha.innerHTML = `
-            <td>${produto.nome}</td>
+            <td class="celula-nome"></td>
             <td>${formatarMoeda(produto.preco)}</td>
             <td>${produto.quantidade}</td>
             <td>${formatarMoeda(produto.subtotal)}</td>
@@ -115,6 +133,8 @@ function renderizarTabela() {
                 <button class="btn-remover" onclick="removerProduto(${indiceOriginal})">Remover</button>
             </td>
         `;
+
+        linha.querySelector(".celula-nome").textContent = produto.nome;
 
         tabelaCorpo.appendChild(linha);
     });
@@ -131,14 +151,14 @@ function resetarModoInclusao() {
 function prepararEdicao(index) {
     const produto = listaDeProdutos[index];
 
-    document.getElementById("nome").value = produto.nome;
-    document.getElementById("preco").value = produto.preco;
-    document.getElementById("quantidade").value = produto.quantidade;
+    campoNome.value = produto.nome;
+    campoPreco.value = produto.preco;
+    campoQuantidade.value = produto.quantidade;
 
     indiceEdicao = index;
     botaoSubmit.innerText = TEXTO_BOTAO_EDITAR;
 
-    document.getElementById("nome").focus();
+    campoNome.focus();
 }
 
 function removerProduto(index) {
@@ -163,18 +183,30 @@ document.getElementById("limpar-tabela").addEventListener("click", () => {
     renderizarTabela();
 });
 
-
 campoBusca.addEventListener("input", () => {
     termoBusca = campoBusca.value.trim().toLowerCase();
     renderizarTabela();
 });
 
+campoNome.addEventListener("change", () => {
+    if (indiceEdicao !== null) return;
+
+    const existente = listaDeProdutos.find(
+        (p) => p.nome.toLowerCase() === campoNome.value.trim().toLowerCase()
+    );
+
+    if (existente) {
+        campoPreco.value = existente.preco;
+        campoQuantidade.value = existente.quantidade;
+    }
+});
+
 form.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    const nome = document.getElementById("nome").value.trim();
-    const preco = parseFloat(document.getElementById("preco").value);
-    const quantidade = parseInt(document.getElementById("quantidade").value);
+    const nome = campoNome.value.trim();
+    const preco = parseFloat(campoPreco.value);
+    const quantidade = parseInt(campoQuantidade.value);
 
     if (nome === "") {
         alert("O nome do produto não pode estar vazio.");
@@ -206,7 +238,6 @@ form.addEventListener("submit", (event) => {
         alert(error.message);
     }
 });
-
 
 carregarDoStorage();
 renderizarTabela();
